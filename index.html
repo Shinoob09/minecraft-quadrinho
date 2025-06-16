@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Webtoon</title>
+    <link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Minecraft', sans-serif;
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .dark {
+            background: linear-gradient(180deg, #1a1a1a 0%, #2c2c2c 100%);
+            color: #e5e7eb;
+        }
+        .light {
+            background: linear-gradient(180deg, #f0f0f0 0%, #d4d4d4 100%);
+            color: #1a1a1a;
+        }
+        .comic-panel {
+            transition: all 0.3s ease-in-out;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .minecraft-btn {
+        transition: all 0.2s ease-in-out;
+        }
+        .minecraft-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .comic-panel.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .minecraft-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .minecraft-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .comic-card {
+            transition: all 0.2s ease-in-out;
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .comic-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .comic-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .comic-card h3 {
+            padding: 1rem;
+            text-align: center;
+            color: #e5e7eb;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        .speech-bubble {
+            transition: transform 0.3s ease-in-out;
+        }
+        .speech-bubble:hover {
+            transform: scale(1.05);
+        }
+        .comic-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .comic-page {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            border: 4px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #000;
+            transition: transform 0.3s ease-in-out;
+            display: none;
+        }
+        .comic-page.active {
+            display: block;
+        }
+        .comic-page:hover {
+            transform: scale(1.02);
+        }
+        .fundo-gif, .fundo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        .menu-imagem {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .personagem {
+            position: absolute;
+            bottom: 20px;
+            left: 215px;
+            width: 150px;
+            z-index: 1;
+        }
+        .personagem1 {
+            position: absolute;
+            bottom: 20px;
+            left: 80px;
+            width: 400px;
+            z-index: 1;
+        }
+        .inventario {
+            position: absolute;
+            bottom: 20px;
+            left: -10px;
+            width: 70%;
+            z-index: 2;
+        }
+        .barrinhainventario {
+            position: absolute;
+            bottom: 20px;
+            left: 80px;
+            width: 400px;
+            z-index: 2;
+        }
+        .carnecru {
+            position: absolute;
+            top: 95px;
+            left: 110px;
+            width: 50px;
+            height: auto;
+            z-index: 2;
+        }
+        .Bau {
+            position: absolute;
+            top: 180px;
+            left: 540px;
+            width: 300px;
+            height: auto;
+            filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.5));
+            z-index: 1;
+        }
+        .Fornalha {
+            position: absolute;
+            top: 280px;
+            left: 550px;
+            width: 200px;
+            height: auto;
+            filter: drop-shadow(0px 10px 10px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+        .caixadefala {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            width: 250px;
+            height: 200px;
+            z-index: 2;
+        }
+        .caixadefala img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .texto-fala {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            width: 210px;
+            color: black;
+            font-size: 16px;
+            text-align: center;
+            pointer-events: none;
+            font-family: 'Minecraft', sans-serif;
+        }
+        .minecraft-btn.abrir-bau {
+            position: absolute;
+            top: 400px;
+            left: 550px;
+            padding: 10px 20px;
+            font-size: 16px;
+            z-index: 2;
+        }
+        .page-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .comment {
+            background: #2d2d2d;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+        }
+        .comment:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .comment p {
+            color: #e5e7eb;
+        }
+        .comment .name {
+            color: #4ade80;
+            font-weight: bold;
+        }
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #fff;
+            z-index: 1000;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .alert.success {
+            background: #4ade80;
+        }
+        .alert.error {
+            background: #ef4444;
+        }
+        @media (max-width: 640px) {
+            .comic-page {
+                height: auto;
+                min-height: 300px;
+                border-radius: 4px;
+            }
+            .personagem, .personagem1, .inventario, .barrinhainventario, .Bau, .Fornalha, .carnecru, .caixadefala, .texto-fala {
+                transform: scale(0.8);
+            }
+            .caixadefala {
+                width: 200px;
+                height: 160px;
+            }
+            .texto-fala {
+                width: 180px;
+                font-size: 14px;
+                top: 50px;
+                left: 15px;
+            }
+            .minecraft-btn.abrir-bau {
+                top: 80%;
+                left: 50%;
+                transform: translateX(-50%) scale(0.8);
+            }
+            .comic-card img {
+                height: 150px;
+            }
+            .comment {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 w-64 h-full bg-gray-800 p-4 shadow-lg z-20">
+        <h2 class="text-2xl text-green-400 mb-4">Minecraft Webtoon</h2>
+        <nav class="space-y-2">
+            <button onclick="showSection('home')" class="w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Início</button>
+            <button onclick="showSection('favorites')" class="w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Favoritos</button>
+            <button onclick="showSection('profile')" class="w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Perfil</button>
+            <button onclick="showSection('admin')" class="w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Admin</button>
+            <button onclick="toggleDarkMode()" class="w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Alternar Tema</button>
+            <a href="https://classic.minecraft.net/" target="_blank" class="minecraft-btn w-full text-left text-white py-2 px-4 rounded hover:bg-green-600">Jogar Minecraft</a>
+        </nav>
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-white">☰</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 ml-0 md:ml-64">
+        <!-- Home Section -->
+        <section id="home" class="space-y-6">
+            <h1 class="text-3xl text-green-400">Bem-vindo à Aventura!</h1>
+            <div id="comic-carousel" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- Reader Section -->
+        <section id="reader" class="hidden space-y-4">
+            <h2 id="reader-title" class="text-2xl text-green-400">Capítulo 1: A Jornada de Steve</h2>
+            <div id="reader-content" class="max-h-[80vh] overflow-y-auto space-y-4">
+                <div class="comic-container"></div>
+                <div class="page-nav">
+                    <button id="prev-page" class="minecraft-btn bg-gray-700 text-white px-4 py-2 rounded-md" disabled>Anterior</button>
+                    <button id="next-page" class="minecraft-btn bg-green-500 text-white px-4 py-2 rounded-md">Próxima</button>
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <button id="prev-chapter" class="minecraft-btn bg-gray-700 text-white px-6 py-3 rounded-md" disabled>Anterior</button>
+                <button id="next-chapter" class="minecraft-btn bg-green-500 text-white px-6 py-3 rounded-md">Próximo</button>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-xl text-green-400">Comentários</h3>
+                <form id="comment-form" class="space-y-2">
+                    <input type="text" id="comment-name" placeholder="Seu nome" class="w-full p-2 rounded bg-gray-700 text-white" required>
+                    <textarea id="comment-text" placeholder="Escreva um comentário" class="w-full p-2 rounded bg-gray-700 text-white" required></textarea>
+                    <button type="submit" class="minecraft-btn bg-green-500 text-white px-4 py-2 rounded">Enviar</button>
+                </form>
+                <div id="comment-list" class="mt-4 space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- Favorites Section -->
+        <section id="favorites" class="hidden space-y-6">
+            <h2 class="text-2xl text-green-400">Favoritos</h2>
+            <div id="favorites-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="hidden space-y-6">
+            <h2 class="text-2xl text-green-400">Perfil</h2>
+            <div id="profile-info"></div>
+            <form id="login-form" class="space-y-2">
+                <input type="text" id="username" placeholder="Digite seu nome" class="w-full p-2 rounded bg-gray-700 text-white">
+                <button type="submit" class="minecraft-btn bg-green-500 text-white px-4 py-2 rounded">Salvar</button>
+            </form>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin" class="hidden space-y-6">
+            <h2 class="text-2xl text-green-400">Adicionar Nova HQ</h2>
+            <form id="admin-form" class="space-y-2">
+                <input type="text" id="admin-title" placeholder="Título da HQ" class="w-full p-2 rounded bg-gray-700 text-white" required>
+                <textarea id="admin-description" placeholder="Descrição" class="w-full p-2 rounded bg-gray-700 text-white" required></textarea>
+                <input type="text" id="admin-author" placeholder="Autor" class="w-full p-2 rounded bg-gray-700 text-white" required>
+                <input type="file" id="admin-cover" accept="image/*" class="w-full p-2 rounded bg-gray-700 text-white" required>
+                <input type="file" id="admin-chapters" accept="image/*" multiple class="w-full p-2 rounded bg-gray-700 text-white" required>
+                <textarea id="admin-speech" placeholder="Texto da caixa de fala (opcional)" class="w-full p-2 rounded bg-gray-700 text-white"></textarea>
+                <button type="submit" class="minecraft-btn bg-green-500 text-white px-4 py-2 rounded">Adicionar</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- JavaScript para navegação e funcionalidade -->
+    <script>
+        // Estado da navegação
+        let currentPage = 0;
+        let currentChapter = 0;
+
+        // Carregar capítulos do localStorage ou usar padrão
+        let chapters = JSON.parse(localStorage.getItem('chapters')) || [
+            [
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/gif-fundo-minecraft', class: 'fundo-gif', alt: 'Fundo animado' },
+                        { tag: 'img', src: 'imagens/minecraft_menu.png', class: 'menu-imagem', alt: 'Menu Minecraft' }
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steveoriginal.png', class: 'personagem', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/barrinha_invetario.png', class: 'inventario', alt: 'Espada' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'Oi, Eu sou o Steve!' }
+                        ]}
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steveoriginal.png', class: 'personagem', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/barrinha_invetario.png', class: 'inventario', alt: 'Espada' },
+                        { tag: 'img', src: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/4/41/Chest.gif/revision/latest/thumbnail/width/360/height/360?cb=20191219163201', class: 'Bau', alt: 'Baú' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'OMGDDDDDDD! um baú' }
+                        ]}
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steveoriginal.png', class: 'personagem', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/inventario.png', class: 'barrinhainventario', alt: 'Inventário' },
+                        { tag: 'img', src: 'https://static.wikia.nocookie.net/minecraft_gamepedia/images/4/41/Chest.gif/revision/latest/thumbnail/width/360/height/360?cb=20191219163201', class: 'Bau', id: 'bau', alt: 'Baú' },
+                        { tag: 'button', class: 'minecraft-btn abrir-bau bg-green-500 text-white', onclick: 'abrirBau()', text: 'Abrir Baú' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'SELOKO ESTOURO' }
+                        ]}
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steve.png', class: 'personagem1', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/inventario.png', class: 'barrinhainventario', alt: 'Espada' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'Vou matar Porco!' }
+                        ]}
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/minecraft-pig.gif', class: 'fundo-gif', alt: 'Fundo animado' }
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steveoriginal.png', class: 'personagem', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/inventario1.png', class: 'barrinhainventario', alt: 'Espada' },
+                        { tag: 'img', src: 'imagens/carne-cru.png', class: 'carnecru', alt: 'Carne Crua' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'Agora preciso assar essa' }
+                        ]}
+                    ]
+                },
+                {
+                    elements: [
+                        { tag: 'img', src: 'imagens/fundomine.jpg', class: 'fundo', alt: 'Fundo Minecraft' },
+                        { tag: 'img', src: 'imagens/steveoriginal.png', class: 'personagem', alt: 'Steve Minecraft' },
+                        { tag: 'img', src: 'imagens/inventario2.png', class: 'barrinhainventario', alt: 'Espada' },
+                        { tag: 'img', src: 'https://static.wikia.nocookie.net/minecraft/images/9/9f/Furnace.gif/revision/latest/scale-to-width/360?cb=20190915171127', class: 'Fornalha', alt: 'Fornalha' },
+                        { tag: 'div', class: 'caixadefala', children: [
+                            { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                            { tag: 'div', class: 'texto-fala', text: 'Hora de usar a fornalha!' }
+                        ]}
+                    ]
+                }
+            ]
+        ];
+        // Adicionar capa padrão para o capítulo inicial
+        chapters[0].cover = 'imagens/fundomine.jpg';
+        chapters[0].title = 'A Jornada de Steve';
+
+        // Função para salvar capítulos no localStorage
+        function saveChapters() {
+            localStorage.setItem('chapters', JSON.stringify(chapters));
+        }
+
+        // Função para mostrar alertas
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+
+        // Função para inicializar o carrossel
+        function initCarousel() {
+            const carousel = document.getElementById('comic-carousel');
+            carousel.innerHTML = '';
+            chapters.forEach((chapter, index) => {
+                const card = document.createElement('div');
+                card.className = 'comic-card';
+                card.innerHTML = `
+                    <img src="${chapter.cover || 'imagens/fundomine.jpg'}" alt="Capa do Capítulo ${index + 1}">
+                    <h3>${chapter.title || `Capítulo ${index + 1}`}</h3>
+                `;
+                card.addEventListener('click', () => {
+                    currentChapter = index;
+                    currentPage = 0;
+                    loadPage(currentChapter, currentPage);
+                    showSection('reader');
+                });
+                carousel.appendChild(card);
+            });
+        }
+
+        // Função para alternar seções
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            if (sectionId === 'home') {
+                initCarousel();
+            } else if (sectionId === 'reader') {
+                loadComments();
+            }
+        }
+
+        // Função para alternar tema claro/escuro
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            document.body.classList.toggle('light');
+        }
+
+        // Função para alternar sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('sidebar-hidden');
+        }
+
+        // Função para abrir o baú
+        function abrirBau() {
+            const bau = document.getElementById('bau');
+            if (bau) {
+                bau.src = "https://i.gifer.com/origin/d7/d7ac4f38b77abe73165d85edf2cbdb9e_w200.gif";
+            }
+        }
+
+        // Função para carregar página específica
+        function loadPage(chapterIndex, pageIndex) {
+            const readerContent = document.getElementById('reader-content');
+            const comicContainer = readerContent.querySelector('.comic-container');
+            comicContainer.innerHTML = '';
+
+            const page = chapters[chapterIndex][pageIndex];
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'comic-page active';
+            page.elements.forEach(element => {
+                const el = document.createElement(element.tag);
+                if (element.src) el.src = element.src;
+                if (element.class) el.className = element.class;
+                if (element.id) el.id = element.id;
+                if (element.alt) el.alt = element.alt;
+                if (element.text) el.textContent = element.text;
+                if (element.onclick) el.setAttribute('onclick', element.onclick);
+                if (element.children) {
+                    element.children.forEach(child => {
+                        const childEl = document.createElement(child.tag);
+                        if (child.src) childEl.src = child.src;
+                        if (child.class) childEl.className = child.class;
+                        if (child.alt) childEl.alt = child.alt;
+                        if (child.text) childEl.textContent = child.text;
+                        el.appendChild(childEl);
+                    });
+                }
+                pageDiv.appendChild(el);
+            });
+            comicContainer.appendChild(pageDiv);
+
+            document.getElementById('reader-title').textContent = chapters[chapterIndex].title || `Capítulo ${chapterIndex + 1}`;
+
+            // Atualizar botões de navegação
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            prevPageBtn.disabled = pageIndex === 0;
+            nextPageBtn.disabled = pageIndex === chapters[chapterIndex].length - 1;
+            document.getElementById('prev-chapter').disabled = chapterIndex === 0;
+            document.getElementById('next-chapter').disabled = chapterIndex === chapters.length - 1;
+
+            loadComments();
+        }
+
+        // Função para navegação de páginas
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadPage(currentChapter, currentPage);
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (currentPage < chapters[currentChapter].length - 1) {
+                currentPage++;
+                loadPage(currentChapter, currentPage);
+            }
+        });
+
+        // Função para navegação de capítulos
+        document.getElementById('prev-chapter').addEventListener('click', () => {
+            if (currentChapter > 0) {
+                currentChapter--;
+                currentPage = 0;
+                loadPage(currentChapter, currentPage);
+            }
+        });
+
+        document.getElementById('next-chapter').addEventListener('click', () => {
+            if (currentChapter < chapters.length - 1) {
+                currentChapter++;
+                currentPage = 0;
+                loadPage(currentChapter, currentPage);
+            }
+        });
+
+        // Função para formulário de admin
+        document.getElementById('admin-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('admin-title').value;
+            const description = document.getElementById('admin-description').value;
+            const author = document.getElementById('admin-author').value;
+            const speech = document.getElementById('admin-speech').value;
+            const coverFile = document.getElementById('admin-cover').files[0];
+            const chapterFiles = document.getElementById('admin-chapters').files;
+
+            if (!coverFile || chapterFiles.length === 0) {
+                showAlert('Por favor, selecione uma capa e pelo menos uma página.', 'error');
+                return;
+            }
+
+            const newChapter = { title, pages: [] };
+            let coverSrc = '';
+
+            // Ler capa
+            const coverReader = new FileReader();
+            coverReader.onload = (e) => {
+                coverSrc = e.target.result;
+                newChapter.cover = coverSrc;
+
+                // Ler páginas
+                Array.from(chapterFiles).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const page = {
+                            elements: [
+                                { tag: 'img', src: e.target.result, class: 'fundo', alt: `Página ${index + 1}` }
+                            ]
+                        };
+                        if (speech) {
+                            page.elements.push({
+                                tag: 'div', class: 'caixadefala', children: [
+                                    { tag: 'img', src: 'imagens/caixadefala.png', alt: 'Caixa de Fala' },
+                                    { tag: 'div', class: 'texto-fala', text: speech }
+                                ]
+                            });
+                        }
+                        newChapter.pages.push(page);
+                        if (index === chapterFiles.length - 1) {
+                            chapters.push(newChapter);
+                            saveChapters();
+                            currentChapter = chapters.length - 1;
+                            currentPage = 0;
+                            loadPage(currentChapter, currentPage);
+                            showSection('reader');
+                            showAlert('Novo capítulo adicionado com sucesso!', 'success');
+                            initCarousel();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+            coverReader.readAsDataURL(coverFile);
+
+            // Limpar formulário
+            document.getElementById('admin-form').reset();
+        });
+
+        // Função para gerenciar comentários
+        function loadComments() {
+            const commentList = document.getElementById('comment-list');
+            commentList.innerHTML = '';
+            const comments = JSON.parse(localStorage.getItem(`comments_chapter_${currentChapter}`)) || [];
+            comments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.innerHTML = `
+                    <p class="name">${comment.name}</p>
+                    <p>${comment.text}</p>
+                `;
+                commentList.appendChild(commentDiv);
+            });
+        }
+
+        document.getElementById('comment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('comment-name').value.trim();
+            const text = document.getElementById('comment-text').value.trim();
+
+            if (!name || !text) {
+                showAlert('Preencha todos os campos do comentário.', 'error');
+                return;
+            }
+
+            const comments = JSON.parse(localStorage.getItem(`comments_chapter_${currentChapter}`)) || [];
+            comments.push({ name, text });
+            localStorage.setItem(`comments_chapter_${currentChapter}`, JSON.stringify(comments));
+
+            document.getElementById('comment-form').reset();
+            loadComments();
+            showAlert('Comentário adicionado!', 'success');
+        });
+
+        // Inicializa o carrossel e a página
+        initCarousel();
+        loadPage(currentChapter, currentPage);
+    </script>
+</body>
+</html>
